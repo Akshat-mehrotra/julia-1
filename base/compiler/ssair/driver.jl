@@ -61,7 +61,7 @@ function convert_to_ircode(ci::CodeInfo, code::Vector{Any}, coverage::Bool, narg
         codeloc = ci.codelocs[idx]
         if coverage && codeloc != prevloc && codeloc != 0
             # insert a side-effect instruction before the current instruction in the same basic block
-            insert!(code, idx, Expr(:gc_preserve_begin))
+            insert!(code, idx, Expr(:code_coverage_marker))
             insert!(ci.codelocs, idx, codeloc)
             insert!(ci.ssavaluetypes, idx, Nothing)
             changemap[oldidx] += 1

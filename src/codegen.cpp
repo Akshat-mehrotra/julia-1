@@ -4026,7 +4026,8 @@ static void emit_stmtpos(jl_codectx_t &ctx, jl_value_t *expr, int ssaval_result)
     jl_expr_t *ex = (jl_expr_t*)expr;
     jl_value_t **args = (jl_value_t**)jl_array_data(ex->args);
     jl_sym_t *head = ex->head;
-    if (head == meta_sym || head == inbounds_sym || head == aliasscope_sym || head == popaliasscope_sym) {
+    if (head == meta_sym || head == inbounds_sym || head == coverageeffect_sym
+            || head == aliasscope_sym || head == popaliasscope_sym) {
         // some expression types are metadata and can be ignored
         // in statement position
         return;
@@ -4307,26 +4308,10 @@ static jl_cgval_t emit_expr(jl_codectx_t &ctx, jl_value_t *expr, ssize_t ssaval)
         I->setMetadata("julia.loopinfo", MD);
         return jl_cgval_t();
     }
-    else if (head == goto_ifnot_sym) {
-        jl_error("Expr(:goto_ifnot) in value position");
-    }
-    else if (head == leave_sym) {
-        jl_error("Expr(:leave) in value position");
-    }
-    else if (head == pop_exception_sym) {
-        jl_error("Expr(:pop_exception) in value position");
-    }
-    else if (head == enter_sym) {
-        jl_error("Expr(:enter) in value position");
-    }
-    else if (head == inbounds_sym) {
-        jl_error("Expr(:inbounds) in value position");
-    }
-    else if (head == aliasscope_sym) {
-        jl_error("Expr(:aliasscope) in value position");
-    }
-    else if (head == popaliasscope_sym) {
-        jl_error("Expr(:popaliasscope) in value position");
+    else if (head == goto_ifnot_sym || head == leave_sym || head == coverageeffect_sym
+            || head == pop_exception_sym || head == enter_sym || head == inbounds_sym
+            || head == aliasscope_sym || head == popaliasscope_sym) {
+        jl_errorf("Expr(:%s) in value position", jl_symbol_name(head));
     }
     else if (head == boundscheck_sym) {
         return mark_julia_const(bounds_check_enabled(ctx, jl_true) ? jl_true : jl_false);
